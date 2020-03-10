@@ -72,7 +72,7 @@ namespace Fenton.WebLogImporter
             {
                 using (var command = new SqlCommand()
                 {
-                    CommandText = "BULK INSERT LogEntry FROM '" + _outFile + "' WITH (FIRSTROW = 2, FIELDTERMINATOR = ' ', ROWTERMINATOR = '\n')",
+                    CommandText = "BULK INSERT LogEntry FROM '" + _outFile + "' WITH (FIRSTROW = 2, FIELDTERMINATOR = ' ', ROWTERMINATOR = '\n', MAXERRORS = 500)",
                     CommandType = CommandType.Text,
                     Connection = connection
                 })
