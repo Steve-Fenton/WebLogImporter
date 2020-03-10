@@ -1,13 +1,17 @@
 ﻿# Web Log Importer
 
-This app will read all files placed in the following directory, combine them and strip unnecessary headers, and bulk load them into SQL.
+This app will read all files placed in the following directory:
 
     C:\Temp\Logs\In
+
+The app will combine them,  strip unnecessary headers, and bulk load them into SQL.
 
 # One Time Set Up
 
  - Create a couple of folders... or let the app do it
  - Create a database with a table (script below)
+
+ ## Folders
 
 To start with, you'll need the following folders:
 
@@ -15,6 +19,10 @@ To start with, you'll need the following folders:
     C:\Temp\Logs\Out
 
 Running the app for the first time will create these folders... you just need to remember to use them!
+
+Place all the log files for import into `C:\Temp\Logs\In`.
+
+## Database
 
 And the following SQL database:
 
@@ -26,59 +34,13 @@ And the following SQL database:
 	ALTER DATABASE [WebLogs] SET RECOVERY SIMPLE 
 	GO
 
-The following script will set up your database... I plan to make this automatic and dynamic based on different logging configurations.
+When the app runs, it will set up the database based on the log files being ingested.
 
-	USE [WebLogs]
-	GO
+Note! When ingesting files from more than one IIS website, please ensure the log files are configured identically. 
+For example, if you add sc-bytes logging, you'll need to ensure it is added to all. Otherwise the files won't match 
+on import.
 
-	IF OBJECT_ID('dbo.LogEntry', 'U') IS NOT NULL 
-	BEGIN
-		DROP TABLE dbo.LogEntry
-	END
-	GO
-
-	IF OBJECT_ID('dbo.RoundToMinutes', 'FN') IS NOT NULL 
-	BEGIN
-		DROP FUNCTION dbo.RoundToMinutes
-	END
-	GO
-
-	SET ANSI_NULLS ON
-	GO
-	SET QUOTED_IDENTIFIER ON
-	GO
-
-	CREATE TABLE [dbo].[LogEntry](
-		[date]            DATETIME2       NULL,
-		[time]            DATETIME2       NULL,
-		[s_ip]            [NVARCHAR](100) NULL,
-		[cs_method]       [NVARCHAR](50)  NULL,
-		[cs_uri_stem]     [NVARCHAR](MAX) NULL,
-		[cs_uri_query]    [NVARCHAR](MAX) NULL,
-		[s_port]          [INT]           NULL,
-		[cs_username]     [NVARCHAR](MAX) NULL,
-		[c_ip]            [NVARCHAR](100) NULL,
-		[cs_User_Agent]   [NVARCHAR](MAX) NULL,
-		[cs_Referer]      [NVARCHAR](MAX) NULL,
-		[cs_host]         [NVARCHAR](MAX) NULL,
-		[sc_status]       [INT]           NULL,
-		[sc_substatus]    [INT]           NULL,
-		[sc_win32_status] [INT]           NULL,
-		[time_taken]      [INT]           NULL,
-		[X_Forwarded_For] [NVARCHAR](100) NULL,
-		INDEX cci CLUSTERED COLUMNSTORE
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-	GO
-
-	CREATE FUNCTION dbo.RoundToMinutes(@date DATETIME2, @time DATETIME2, @minutes INT) RETURNS SMALLDATETIME
-	AS
-	BEGIN
-		SELECT @date = CAST(@date AS DATETIME) + CAST(@time AS DATETIME)
-		RETURN DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, @date ) / @minutes) * @minutes, 0)
-	END
-	GO
-
-# Database Access
+### Database Access
 
 To keep things simple, the user running the app will need permissions on the database.
 
@@ -91,6 +53,8 @@ Fill the "in" folder with IIS logs, then just run the app.
 # Queries
 
 It's just SQL queries now... so knock yourself out...
+
+More examples are available from the [Web Log Importer](https://www.stevefenton.co.uk/tag/web-log-importer/) tag on my website.
 
 ## X-Forwarded-For Rankings
 
