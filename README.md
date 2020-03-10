@@ -110,3 +110,19 @@ You can filter by date and time using the following (using "date =" because time
 		[date] = '2020-03-10'
 	AND
 		[time] BETWEEN '12:20' AND '12:50'
+
+For example,
+
+	SELECT
+		[X_Forwarded_For],
+		COUNT(1)
+	FROM
+		LogEntry
+	WHERE
+		[date] = '2020-03-10'
+	AND
+		[time] BETWEEN '12:20' AND '12:50'
+	GROUP BY
+		[X_Forwarded_For]
+	ORDER BY
+		COUNT(1) DESC
