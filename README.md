@@ -26,7 +26,21 @@ And the following SQL database:
 	ALTER DATABASE [WebLogs] SET RECOVERY SIMPLE 
 	GO
 
+The following script will set up your database... I plan to make this automatic and dynamic based on different logging configurations.
+
 	USE [WebLogs]
+	GO
+
+	IF OBJECT_ID('dbo.LogEntry', 'U') IS NOT NULL 
+	BEGIN
+		DROP TABLE dbo.LogEntry
+	END
+	GO
+
+	IF OBJECT_ID('dbo.RoundToMinutes', 'FN') IS NOT NULL 
+	BEGIN
+		DROP FUNCTION dbo.RoundToMinutes
+	END
 	GO
 
 	SET ANSI_NULLS ON
@@ -35,25 +49,33 @@ And the following SQL database:
 	GO
 
 	CREATE TABLE [dbo].[LogEntry](
-		[date] datetime2 NULL,
-		[time] datetime2 NULL,
-		[s_ip] [nvarchar](50) NULL,
-		[cs_method] [nvarchar](50) NULL,
-		[cs_uri_stem] [nvarchar](max) NULL,
-		[cs_uri_query] [nvarchar](max) NULL,
-		[s_port] [int] NULL,
-		[cs_username] [nvarchar](max) NULL,
-		[c_ip] [nvarchar](50) NULL,
-		[cs_User_Agent_] [nvarchar](max) NULL,
-		[cs_Referer_] [nvarchar](max) NULL,
-		[cs_host] [nvarchar](max) NULL,
-		[sc_status] [int] NULL,
-		[sc_substatus] [int] NULL,
-		[sc_win32_status] [int] NULL,
-		[time_taken] [int] NULL,
-		[X_Forwarded_For] [nvarchar](50) NULL,
+		[date]            DATETIME2       NULL,
+		[time]            DATETIME2       NULL,
+		[s_ip]            [NVARCHAR](100) NULL,
+		[cs_method]       [NVARCHAR](50)  NULL,
+		[cs_uri_stem]     [NVARCHAR](MAX) NULL,
+		[cs_uri_query]    [NVARCHAR](MAX) NULL,
+		[s_port]          [INT]           NULL,
+		[cs_username]     [NVARCHAR](MAX) NULL,
+		[c_ip]            [NVARCHAR](100) NULL,
+		[cs_User_Agent]   [NVARCHAR](MAX) NULL,
+		[cs_Referer]      [NVARCHAR](MAX) NULL,
+		[cs_host]         [NVARCHAR](MAX) NULL,
+		[sc_status]       [INT]           NULL,
+		[sc_substatus]    [INT]           NULL,
+		[sc_win32_status] [INT]           NULL,
+		[time_taken]      [INT]           NULL,
+		[X_Forwarded_For] [NVARCHAR](100) NULL,
 		INDEX cci CLUSTERED COLUMNSTORE
 	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+	GO
+
+	CREATE FUNCTION dbo.RoundToMinutes(@date DATETIME2, @time DATETIME2, @minutes INT) RETURNS SMALLDATETIME
+	AS
+	BEGIN
+		SELECT @date = CAST(@date AS DATETIME) + CAST(@time AS DATETIME)
+		RETURN DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, @date ) / @minutes) * @minutes, 0)
+	END
 	GO
 
 # Database Access

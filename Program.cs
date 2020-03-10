@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
@@ -18,6 +19,9 @@ namespace Fenton.WebLogImporter
 
         static void Main(string[] args)
         {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            
             ConfigureFileSystem();
 
             CombineAndCleanseFiles();
@@ -25,6 +29,10 @@ namespace Fenton.WebLogImporter
             EmptyTable();
 
             BulkLoadData();
+            
+            timer.Stop();
+
+            Console.WriteLine("Elapsed time {0} ms", timer.ElapsedMilliseconds);
         }
 
         private static void CombineAndCleanseFiles()
@@ -72,7 +80,7 @@ namespace Fenton.WebLogImporter
             {
                 using (var command = new SqlCommand()
                 {
-                    CommandText = "BULK INSERT LogEntry FROM '" + _outFile + "' WITH (FIRSTROW = 2, FIELDTERMINATOR = ' ', ROWTERMINATOR = '\n', MAXERRORS = 500)",
+                    CommandText = "BULK INSERT LogEntry FROM '" + _outFile + "' WITH (FIRSTROW = 2, FIELDTERMINATOR = ' ', ROWTERMINATOR = '\n', MAXERRORS = 10)",
                     CommandType = CommandType.Text,
                     Connection = connection
                 })
