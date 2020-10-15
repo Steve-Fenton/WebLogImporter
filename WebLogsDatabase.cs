@@ -35,6 +35,7 @@ namespace Fenton.WebLogImporter
             using var connection = new SqlConnection(_db);
             using SqlCommand command = _commands.GetBulkInsertCommand(connection);
             connection.Open();
+            command.CommandTimeout = 3600; // 3600 seconds = 1 hour
             command.ExecuteNonQuery();
         }
 
