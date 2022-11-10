@@ -54,7 +54,7 @@ Fill the "in" folder with IIS logs, then just run the app.
 
 It's just SQL queries now... so knock yourself out...
 
-More examples are available from the [Web Log Importer](https://www.stevefenton.co.uk/tag/web-log-importer/) tag on my website.
+More examples are available from the [Web Log Importer](https://www.stevefenton.co.uk/tag/web-log-importer/1/) tag on my website.
 
 ## X-Forwarded-For Rankings
 
